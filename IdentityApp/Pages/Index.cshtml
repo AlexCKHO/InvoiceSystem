@@ -16,7 +16,7 @@
 </div>
 
 
-@if (User.IsInRole(Constants.InvoiceAdminsRole))
+@if (User.IsInRole(Constants.InvoiceAdminsRole) || User.IsInRole(Constants.InvoiceManagersRole))
 {
     <div>
         <canvas id="myChart"></canvas>

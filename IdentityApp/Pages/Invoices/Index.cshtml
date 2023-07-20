@@ -1,4 +1,5 @@
 ﻿@page
+@using IdentityApp.Authorization
 @model IdentityApp.Pages.Invoices.IndexModel
 
 @{
@@ -8,7 +9,12 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-page="Create">Create New</a>
+    @if (!User.IsInRole(Constants.InvoiceManagersRole))
+    {
+        <a asp-page="Create">Create New</a>
+    }
+
+
 </p>
 <table class="table">
     <thead>

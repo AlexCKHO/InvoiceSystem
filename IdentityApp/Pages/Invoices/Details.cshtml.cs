@@ -1,0 +1,82 @@
+﻿using IdentityApp.Authorization;
+using IdentityApp.Data;
+using IdentityApp.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace IdentityApp.Pages.Invoices
+{
+    public class DetailsModel : DI_BasePageModel
+    {
+
+
+        public DetailsModel(ApplicationDbContext context, IAuthorizationService authorizationService, UserManager<IdentityUser> userManager)
+            : base(context, authorizationService, userManager)
+        {
+        }
+
+        public Invoice Invoice { get; set; } = default!; 
+
+        public async Task<IActionResult> OnGetAsync(int? id)
+        {
+            if (id == null || Context.Invoice == null)
+            {
+                return NotFound();
+            }
+
+            var invoice = await Context.Invoice.FirstOrDefaultAsync(m => m.InvoiceId == id);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+            else 
+            {
+                Invoice = invoice;
+            } 
+
+            var isCreator = await AuthorizationService.AuthorizeAsync(
+          User, Invoice, InvoiceOperations.Read);
+
+            var isManager = User.IsInRole(Constants.InvoiceManagersRole);
+
+            if (!isCreator.Succeeded && !isManager)
+            {
+                return Forbid();
+            }
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(int id, InvoiceStatus status)
+        {
+
+            Invoice = await Context.Invoice.FindAsync(id);
+
+            if(Invoice == null)
+            {
+                return NotFound();
+            }
+
+            var invoiceOperation = status == InvoiceStatus.Approved ?
+                InvoiceOperations.Approve :
+                InvoiceOperations.Reject;
+
+            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                User, Invoice, invoiceOperation);
+
+            if(isAuthorized.Succeeded == false)
+            {
+                return Forbid();
+            }
+
+            Invoice.Status = status;
+            Context.Invoice.Update(Invoice);
+
+            await Context.SaveChangesAsync();
+
+            return RedirectToPage("./Index");
+        }
+    }
+}

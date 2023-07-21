@@ -25,12 +25,11 @@ namespace IdentityApp.Pages.Invoices
         [BindProperty]
         public Invoice Invoice { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync()
+        public  IActionResult OnGet()
         {
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
-                User, Invoice, InvoiceOperations.Create);
+            var isManager =  User.IsInRole(Constants.InvoiceManagersRole);
 
-            if (!isAuthorized.Succeeded)
+            if (isManager)
             {
                 return Forbid();
             }

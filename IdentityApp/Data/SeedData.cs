@@ -21,7 +21,7 @@ namespace IdentityApp.Data
 
                 await CreateInvoice(context, creatorUid);
                 // Manager
-                var managerUid = await EnsureUser(serviceProvider, password, "manager@demo.com");
+                var managerUid = await EnsureUser(serviceProvider, "Welcome.123", "manager@demo.com");
                 await EnsureRole(serviceProvider, managerUid, Constants.InvoiceManagersRole);
 
                 // Administrator

@@ -21,14 +21,22 @@ namespace IdentityApp.Pages.Invoices
         {
         }
 
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
 
         [BindProperty]
         public Invoice Invoice { get; set; } = default!;
-        
+
+        public async Task<IActionResult> OnGet()
+        {
+            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                User, Invoice, InvoiceOperations.Create);
+
+            if (!isAuthorized.Succeeded)
+            {
+                return Forbid();
+            }
+            return Page();
+        }
+
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
@@ -49,7 +57,7 @@ namespace IdentityApp.Pages.Invoices
             //    context.Succeed(requirement);
             //}
 
-            if (!isAuthorized.Succeeded)
+            if (!isAuthorized.Succeeded )//|| User.IsInRole(Constants.InvoiceManagersRole)
             { //if the Authorization fail
                 return Forbid();
             }

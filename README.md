@@ -38,6 +38,7 @@ Both Admins and Managers have access to a dynamic graph that visually represents
 - Entity Framework
 - Razor Pages
 - SQL Server
+- MVVM Architecture
 - Javascript
 - HTML
 - CSS
